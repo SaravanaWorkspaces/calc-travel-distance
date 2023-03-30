@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 app.post('/livelocation', (req, res) => {
   const lat = req.body.lat
   const lng = req.body.lng
+  
   res.send('Tracking!')
 })
 
