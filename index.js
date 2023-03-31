@@ -33,7 +33,7 @@ app.post('/livelocation', (req, res) => {
         });
 
         res.status(200)
-        res.send({ message: 'Tracking!',  "deviceId": deviceId});
+        res.send({ message: 'Tracking!',  "deviceId": id});
         return;        
       } 
     }
@@ -45,7 +45,7 @@ app.post('/livelocation', (req, res) => {
   });
 
   res.status(200)
-  res.send({ message: 'Tracking!',  "deviceId": deviceId});
+  res.send({ message: 'Tracking!',  "deviceId": id});
 })
 
 app.post('/travelledDistance', (req, res) => {
@@ -61,7 +61,7 @@ app.post('/travelledDistance', (req, res) => {
         distance += distBetween(start[0], start[1], end[0], end[1])
       }
 
-      res.send({ "distance" : distance,  "deviceId" : deviceId});
+      res.send({ "distance" : distance,  "deviceId" : id});
     } else {
       console.log(err);
     }
@@ -71,7 +71,7 @@ app.post('/travelledDistance', (req, res) => {
 app.post('/clearAll', (req, res) => {
   const id = req.body.deviceId
   fs.truncate(`${id}_location.txt`, 0, function () {
-    res.send(`Done!`);
+    res.send({ "message" : distance,  "deviceId" : id});
   })
 });
 
