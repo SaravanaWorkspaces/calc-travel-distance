@@ -20,6 +20,9 @@ app.post('/livelocation', (req, res) => {
   const lat = req.body.lat
   const lng = req.body.lng
   const id = req.body.deviceId
+  
+  console.log(`livelocation-Params: ${JSON.stringify(req.body)}`);
+
   const fileName = `${id}_location.txt`;
 
   var data = `${lat},${lng}`
@@ -50,6 +53,7 @@ app.post('/livelocation', (req, res) => {
 
 app.post('/travelledDistance', (req, res) => {
   const id = req.body.deviceId
+  console.log(`travelledDistance-Params: ${JSON.stringify(req.body)}`);
   fs.readFile(`${id}_location.txt`, { encoding: 'utf-8' }, function (err, data) {
     if (!err) {
       const locations = data.split(':');
@@ -70,6 +74,7 @@ app.post('/travelledDistance', (req, res) => {
 
 app.post('/clearAll', (req, res) => {
   const id = req.body.deviceId
+  console.log(`clearAll-Params: ${JSON.stringify(req.body)}`);
   fs.truncate(`${id}_location.txt`, 0, function () {
     res.send({ "message" : distance,  "deviceId" : id});
   })
