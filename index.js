@@ -43,7 +43,7 @@ app.get('/travelledDistance', (req, res) => {
       for (var i = 0; i < locations.length - 1; i++) {
         const start = locations[i].split(',');
         const end = locations[i + 1].split(',')
-        distance = distBetween(start[0], start[1], end[0], end[1])
+        distance += distBetween(start[0], start[1], end[0], end[1])
       }
 
       res.send(`Travelled distance: ${distance}`);
