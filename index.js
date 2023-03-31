@@ -16,26 +16,37 @@ app.get('/', (req, res) => {
 })
 
 app.post('/livelocation', (req, res) => {
+
   const lat = req.body.lat
   const lng = req.body.lng
-  const id  = req.body.deviceId
+  const id = req.body.deviceId
+  const fileName = `${id}_location.txt`;
 
   var data = `${lat},${lng}`
 
-  const stat = fs.statSync(`${id}_location.txt`);
-  if (stat.size !== 0) {
-    data = `:${data}`;
-  }
+  fs.open(fileName, 'wx', (err, fd) => {
+    if (err) {
+      if (err.code === 'EEXIST') {
+        fs.appendFile(fileName, `:${data}`, function (err) {
+          if (err) throw err;
+          console.log('Saved!');
+        });
+        res.send("Tracking");
+        return;        
+      } 
+    }
 
-  fs.appendFile('location.txt', data, function (err) {
-    if (err) throw err;
+    fs.writeFile(fileName, data, function (err) {
+      if (err) throw err;
+      console.log('File is created successfully.');
+    });
   });
 
   res.send('Tracking!')
 })
 
 app.post('/travelledDistance', (req, res) => {
-  const id  = req.body.deviceId
+  const id = req.body.deviceId
   fs.readFile(`${id}_location.txt`, { encoding: 'utf-8' }, function (err, data) {
     if (!err) {
       const locations = data.split(':');
@@ -55,8 +66,8 @@ app.post('/travelledDistance', (req, res) => {
 })
 
 app.post('/clearAll', (req, res) => {
-  const id  = req.body.deviceId
-  fs.truncate(`${id}_location.txt`, 0, function(){
+  const id = req.body.deviceId
+  fs.truncate(`${id}_location.txt`, 0, function () {
     res.send(`Done!`);
   })
 });
