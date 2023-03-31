@@ -18,10 +18,11 @@ app.get('/', (req, res) => {
 app.post('/livelocation', (req, res) => {
   const lat = req.body.lat
   const lng = req.body.lng
+  const id  = req.body.deviceId
 
   var data = `${lat},${lng}`
 
-  const stat = fs.statSync('location.txt');
+  const stat = fs.statSync(`${id}_location.txt`);
   if (stat.size !== 0) {
     data = `:${data}`;
   }
@@ -33,9 +34,9 @@ app.post('/livelocation', (req, res) => {
   res.send('Tracking!')
 })
 
-app.get('/travelledDistance', (req, res) => {
-
-  fs.readFile('location.txt', { encoding: 'utf-8' }, function (err, data) {
+app.post('/travelledDistance', (req, res) => {
+  const id  = req.body.deviceId
+  fs.readFile(`${id}_location.txt`, { encoding: 'utf-8' }, function (err, data) {
     if (!err) {
       const locations = data.split(':');
       var distance = 0;
@@ -53,8 +54,9 @@ app.get('/travelledDistance', (req, res) => {
   });
 })
 
-app.get('/clearAll', (req, res) => {
-  fs.truncate('location.txt', 0, function(){
+app.post('/clearAll', (req, res) => {
+  const id  = req.body.deviceId
+  fs.truncate(`${id}_location.txt`, 0, function(){
     res.send(`Done!`);
   })
 });
