@@ -16,39 +16,32 @@ app.get('/', (req, res) => {
 })
 
 app.post('/livelocation', (req, res) => {
-
+  console.log(`livelocation-Params: ${JSON.stringify(req.body)}`)
   const lat = req.body.lat
   const lng = req.body.lng
   const id = req.body.deviceId
-  
-  console.log(`livelocation-Params: ${JSON.stringify(req.body)}`);
 
-  const fileName = `${id}_location.txt`;
-
+  const fileName = `${id}_location.txt`
   var data = `${lat},${lng}`
 
-  fs.open(fileName, 'wx', (err, fd) => {
+  fs.open(fileName, 'r', (err, fd) => {
     if (err) {
-      if (err.code === 'EEXIST') {
-        fs.appendFile(fileName, `:${data}`, function (err) {
-          if (err) throw err;
-          console.log('Saved!');
-        });
-
-        res.status(200)
-        res.send({ message: 'Tracking!',  "deviceId": id});
-        return;        
-      } 
+      fs.writeFile(fileName, data, function (err) {
+        if (err) throw err;
+        console.log('File is created successfully.');
+      });
+    } else {
+      fs.appendFile(fileName, ':'+data, function (err) {
+        if (err) throw err;
+        console.log('Location appended successfully.');
+      }); 
     }
-
-    fs.writeFile(fileName, data, function (err) {
-      if (err) throw err;
-      console.log('File is created successfully.');
-    });
   });
 
   res.status(200)
-  res.send({ message: 'Tracking!',  "deviceId": id});
+  res.send({
+    "message": "Tracking"
+  })
 })
 
 app.post('/travelledDistance', (req, res) => {
@@ -65,7 +58,7 @@ app.post('/travelledDistance', (req, res) => {
         distance += distBetween(start[0], start[1], end[0], end[1])
       }
 
-      res.send({ "distance" : distance,  "deviceId" : id});
+      res.send({ "distance": distance, "deviceId": id });
     } else {
       console.log(err);
     }
@@ -76,7 +69,7 @@ app.post('/clearAll', (req, res) => {
   const id = req.body.deviceId
   console.log(`clearAll-Params: ${JSON.stringify(req.body)}`);
   fs.truncate(`${id}_location.txt`, 0, function () {
-    res.send({ "message" : distance,  "deviceId" : id});
+    res.send({ "message": distance, "deviceId": id });
   })
 });
 
