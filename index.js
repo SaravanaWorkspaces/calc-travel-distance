@@ -21,12 +21,13 @@ app.post('/livelocation', (req, res) => {
   console.log(`livelocation-Params: ${JSON.stringify(req.body)}`)
 
   const lat = req.body.lat,
-    lng = req.body.lng,
-    id = req.body.deviceId,
-    fileName = `${id}_location.json`,
-    path = Path.join('./', fileName)
+        lng = req.body.lng,
+        id = req.body.deviceId,
+        fileName = `${id}_location.json`,
+        path = Path.join('./', fileName)
 
   var travelledKM = 0;
+  var response = { travelledKM, "message": "Tracking.." }
 
   if (fs.existsSync(path)) {
     fs.readFile(fileName, 'utf-8', (err, data) => {
@@ -38,25 +39,24 @@ app.post('/livelocation', (req, res) => {
           lat,
           lng
         })
-        const lastIndex = existingData.latlng.length -1
-        const lastDistance = distBetween(existingData.latlng[lastIndex - 1].lat, existingData.latlng[lastIndex - 1].lng, 
-          existingData.latlng[lastIndex].lat, existingData.latlng[lastIndex].lng)
-        existingData.distanceTravelled += lastDistance
-        travelledKM = existingData.distanceTravelled
-        
-        fs.writeFile(fileName, JSON.stringify(existingData), 'utf8', (err)=>{
-          if (err) {
-            console.error(err)
-          } else {
-            console.log(`Tracking updated`)
-          }
-        });
+
+        if(existingData.length> 1) {
+          const lastIndex = existingData.latlng.length -1
+          const lastDistance = distBetween(existingData.latlng[lastIndex - 1].lat, existingData.latlng[lastIndex - 1].lng, 
+            existingData.latlng[lastIndex].lat, existingData.latlng[lastIndex].lng)
+          existingData.distanceTravelled += lastDistance
+          response.travelledKM = existingData.distanceTravelled
+        }
       }
 
-      const response = {
-        travelledKM,
-        "message": "Tracking"
-      }
+      fs.writeFile(fileName, JSON.stringify(existingData), 'utf8', (err)=>{
+        if (err) {
+          console.error(err)
+        } else {
+          console.log(`Tracking updated`)
+        }
+      });
+      
       console.log(response)
       res.status(200)
       res.send(response)
@@ -77,10 +77,6 @@ app.post('/livelocation', (req, res) => {
       }
     });
 
-    const response = {
-      travelledKM,
-      "message": "Tracking"
-    }
     console.log(response)
     res.status(200)
     res.send(response)
@@ -106,7 +102,7 @@ app.post('/clearAll', (req, res) => {
   const id = req.body.deviceId
   console.log(`clearAll-Params: ${JSON.stringify(req.body)}`);
   fs.truncate(`${id}_location.txt`, 0, function () {
-    res.send({ "message": distance, "deviceId": id });
+    res.send({ "message": "Truncated complete location data", "deviceId": id });
   })
 });
 
