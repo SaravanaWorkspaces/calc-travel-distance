@@ -47,15 +47,17 @@ app.post('/livelocation', (req, res) => {
           existingData.distanceTravelled += lastDistance
           response.travelledKM = existingData.distanceTravelled
         }
+
+        fs.writeFile(fileName, JSON.stringify(existingData), 'utf8', (err)=>{
+          if (err) {
+            console.error(err)
+          } else {
+            console.log(`Tracking updated`)
+          }
+        });
       }
 
-      fs.writeFile(fileName, JSON.stringify(existingData), 'utf8', (err)=>{
-        if (err) {
-          console.error(err)
-        } else {
-          console.log(`Tracking updated`)
-        }
-      });
+     
       
       console.log(response)
       res.status(200)
