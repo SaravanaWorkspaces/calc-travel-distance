@@ -87,8 +87,9 @@ app.post('/livelocation', (req, res) => {
 
 app.post('/travelledDistance', (req, res) => {
   const id = req.body.deviceId
-  console.log(`travelledDistance-Params: ${JSON.stringify(req.body)}`);
-  fs.readFile(`${id}_location.json`, { encoding: 'utf-8' }, function (err, data) {
+  console.log(`travelledDistance-Params: ${JSON.stringify(req.body)}`)
+  const fileName = `${id}_location.json`
+  fs.readFile(fileName, { encoding: 'utf-8' }, function (err, data) {
     if (!err) {
       const existingData = JSON.parse(data)
       const travelledKM = existingData.distanceTravelled
