@@ -90,9 +90,9 @@ app.post('/travelledDistance', (req, res) => {
   console.log(`travelledDistance-Params: ${JSON.stringify(req.body)}`);
   fs.readFile(`${id}_location.json`, { encoding: 'utf-8' }, function (err, data) {
     if (!err) {
-      console.log(`travelledDistance-response: ${travelledKM}`)
       const existingData = JSON.parse(data)
       const travelledKM = existingData.distanceTravelled
+      console.log(`travelledDistance-response: ${travelledKM}`)
       res.send({ travelledKM });
     } else {
       console.log(err);
