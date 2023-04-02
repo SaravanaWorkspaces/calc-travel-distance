@@ -1,7 +1,9 @@
 const express = require('express')
-var bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
 const fs = require('fs');
+const defaultContent = require('./location-tracker.json')
 const app = express()
+const Path = require('path')
 
 const port = 3000
 
@@ -17,31 +19,72 @@ app.get('/', (req, res) => {
 
 app.post('/livelocation', (req, res) => {
   console.log(`livelocation-Params: ${JSON.stringify(req.body)}`)
-  const lat = req.body.lat
-  const lng = req.body.lng
-  const id = req.body.deviceId
 
-  const fileName = `${id}_location.txt`
-  var data = `${lat},${lng}`
+  const lat = req.body.lat,
+    lng = req.body.lng,
+    id = req.body.deviceId,
+    fileName = `${id}_location.json`,
+    path = Path.join('./', fileName)
 
-  fs.open(fileName, 'r', (err, fd) => {
-    if (err) {
-      fs.writeFile(fileName, data, function (err) {
-        if (err) throw err;
-        console.log('File is created successfully.');
-      });
-    } else {
-      fs.appendFile(fileName, ':'+data, function (err) {
-        if (err) throw err;
-        console.log('Location appended successfully.');
-      }); 
+  var travelledKM = 0;
+
+  if (fs.existsSync(path)) {
+    fs.readFile(fileName, 'utf-8', (err, data) => {
+      if (err) {
+        console.error(err)
+      } else {
+        const existingData = JSON.parse(data)
+        existingData.latlng.push({
+          lat,
+          lng
+        })
+        const lastIndex = existingData.latlng.length -1
+        const lastDistance = distBetween(existingData.latlng[lastIndex - 1].lat, existingData.latlng[lastIndex - 1].lng, 
+          existingData.latlng[lastIndex].lat, existingData.latlng[lastIndex].lng)
+        existingData.distanceTravelled += lastDistance
+        travelledKM = existingData.distanceTravelled
+        
+        fs.writeFile(fileName, JSON.stringify(existingData), 'utf8', (err)=>{
+          if (err) {
+            console.error(err)
+          } else {
+            console.log(`Tracking updated`)
+          }
+        });
+      }
+
+      const response = {
+        travelledKM,
+        "message": "Tracking"
+      }
+      console.log(response)
+      res.status(200)
+      res.send(response)
+    });
+  } else {
+    console.log(`File not exists`)
+    console.log(`..... Creating file ${fileName}`)
+
+    defaultContent.latlng.push({
+      lat,
+      lng
+    });
+    fs.writeFile(fileName, JSON.stringify(defaultContent), 'utf8', (err) => {
+      if (err) {
+        console.error(err)
+      } else {
+        console.log(`File created successfully ${fileName}`)
+      }
+    });
+
+    const response = {
+      travelledKM,
+      "message": "Tracking"
     }
-  });
-
-  res.status(200)
-  res.send({
-    "message": "Tracking"
-  })
+    console.log(response)
+    res.status(200)
+    res.send(response)
+  }
 })
 
 app.post('/travelledDistance', (req, res) => {
@@ -97,4 +140,5 @@ function toRad(Value) {
   return Value * Math.PI / 180;
 }
 
-//12.971599,77.594563:13.052414,80.250825
+
+
