@@ -90,18 +90,12 @@ app.post('/livelocation', (req, res) => {
 app.post('/travelledDistance', (req, res) => {
   const id = req.body.deviceId
   console.log(`travelledDistance-Params: ${JSON.stringify(req.body)}`);
-  fs.readFile(`${id}_location.txt`, { encoding: 'utf-8' }, function (err, data) {
+  fs.readFile(`${id}_location.json`, { encoding: 'utf-8' }, function (err, data) {
     if (!err) {
-      const locations = data.split(':');
-      var distance = 0;
-
-      for (var i = 0; i < locations.length - 1; i++) {
-        const start = locations[i].split(',');
-        const end = locations[i + 1].split(',')
-        distance += distBetween(start[0], start[1], end[0], end[1])
-      }
-
-      res.send({ "distance": distance, "deviceId": id });
+      console.log(`travelledDistance-response: ${travelledKM}`)
+      const existingData = JSON.parse(data)
+      const travelledKM = existingData.distanceTravelled
+      res.send({ travelledKM });
     } else {
       console.log(err);
     }
